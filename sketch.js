@@ -8,13 +8,15 @@ let bgOffset = 0;
 let lastConfettiSpawnTime = 0; // Tracks the 750ms interval
 let endScreenStartTime = 0;    // Tracks the total time spent on the End screen
 
-// UPDATE YOUR QUESTIONS AND OPTIONS HERE
+// 4-OPTION QUIZ DATA
 const quizData = {
   "Q6": {
     question: "Q6: Write your Question 6 here?",
     options: [
       { label: "Option A text", target: "Wrong6" },
-      { label: "Option B text (Correct)", target: "Correct6" }
+      { label: "Option B text (Correct)", target: "Correct6" },
+      { label: "Option C text", target: "Wrong6" },
+      { label: "Option D text", target: "Wrong6" }
     ]
   },
   "Q7": {
@@ -22,7 +24,8 @@ const quizData = {
     options: [
       { label: "Option A text", target: "Wrong7" },
       { label: "Option B text (Correct)", target: "Correct7" },
-      { label: "Option C text", target: "Wrong7" }
+      { label: "Option C text", target: "Wrong7" },
+      { label: "Option D text", target: "Wrong7" }
     ]
   },
   "Q8": {
@@ -30,7 +33,8 @@ const quizData = {
     options: [
       { label: "Option A text", target: "Wrong8" },
       { label: "Option B text", target: "Wrong8" },
-      { label: "Option C text (Correct)", target: "Correct8" }
+      { label: "Option C text (Correct)", target: "Correct8" },
+      { label: "Option D text", target: "Wrong8" }
     ]
   },
   "Q9": {
@@ -38,7 +42,8 @@ const quizData = {
     options: [
       { label: "Option A text", target: "Wrong9" },
       { label: "Option B text", target: "Wrong9" },
-      { label: "Option C text (Correct)", target: "Correct9" }
+      { label: "Option C text (Correct)", target: "Correct9" },
+      { label: "Option D text", target: "Wrong9" }
     ]
   },
   "Q10": {
@@ -46,7 +51,8 @@ const quizData = {
     options: [
       { label: "Option A text", target: "Wrong10" },
       { label: "Option B text", target: "Wrong10" },
-      { label: "Option C text (Correct)", target: "Correct10" }
+      { label: "Option C text (Correct)", target: "Correct10" },
+      { label: "Option D text", target: "Wrong10" }
     ]
   }
 };
@@ -142,9 +148,9 @@ function drawEnhancedBackground() {
 function drawQuestionCard() {
   push();
   let cardW = min(550, width * 0.9);
-  let cardH = max(130, height * 0.22);
+  let cardH = max(110, height * 0.18);
   let cardX = width / 2 - cardW / 2;
-  let cardY = height * 0.15;
+  let cardY = height * 0.10;
 
   fill(30, 41, 59, 230);
   stroke(51, 65, 85);
@@ -161,10 +167,10 @@ function drawQuestionCard() {
     textAnimY = lerp(textAnimY, targetY, 0.1);
     text("Welcome to the Quiz!", width / 2, textAnimY);
   } else if (quizData[currentScreen]) {
-    textSize(width < 500 ? 18 : 22);
+    textSize(width < 500 ? 16 : 20);
     textStyle(BOLD);
     textWrap(WORD);
-    text(quizData[currentScreen].question, cardX + 20, cardY + 20, cardW - 40, cardH - 40);
+    text(quizData[currentScreen].question, cardX + 20, cardY + 15, cardW - 40, cardH - 30);
   } else if (currentScreen.startsWith("Correct")) {
     fill(74, 222, 128);
     textSize(width < 500 ? 24 : 32);
@@ -204,9 +210,9 @@ function triggerScreenChange(targetScreen) {
 
     if (currentScreen === "End") {
       particles = [];
-      endScreenStartTime = millis(); // Track when End screen loaded
+      endScreenStartTime = millis(); 
       lastConfettiSpawnTime = millis();
-      spawnRandomConfettiBurst();    // Initial burst on load
+      spawnRandomConfettiBurst();    
     }
   }, 90);
 }
@@ -214,23 +220,23 @@ function triggerScreenChange(targetScreen) {
 function updateScreenButtons() {
   activeButtons = [];
   let btnW = min(280, width * 0.8);
-  let btnH = 50;
+  let btnH = 42; // Slightly reduced height to accommodate 4 buttons nicely
 
   if (currentScreen === "Start") {
-    activeButtons.push(new Button("button1", width / 2 - btnW / 2, height * 0.5, btnW, btnH, "Start Quiz", "Q6", "#3B82F6"));
+    activeButtons.push(new Button("button1", width / 2 - btnW / 2, height * 0.5, btnW, 50, "Start Quiz", "Q6", "#3B82F6"));
   } 
   else if (quizData[currentScreen]) {
     let opts = quizData[currentScreen].options;
-    let startY = height * 0.42;
+    let startY = height * 0.35; // Moved up slightly to fit 4 options
     opts.forEach((opt, idx) => {
       let buttonId = getButtonIdForQuestionOption(currentScreen, idx);
-      activeButtons.push(new Button(buttonId, width / 2 - btnW / 2, startY + (idx * (btnH + 15)), btnW, btnH, opt.label, opt.target, "#6366F1"));
+      activeButtons.push(new Button(buttonId, width / 2 - btnW / 2, startY + (idx * (btnH + 10)), btnW, btnH, opt.label, opt.target, "#6366F1"));
     });
   } 
   else if (currentScreen.startsWith("Wrong")) {
     let qNum = currentScreen.replace("Wrong", "");
     let retryButtonId = getRetryButtonId(qNum);
-    activeButtons.push(new Button(retryButtonId, width / 2 - btnW / 2, height * 0.5, btnW, btnH, "Try Again", "Q" + qNum, "#F59E0B"));
+    activeButtons.push(new Button(retryButtonId, width / 2 - btnW / 2, height * 0.5, btnW, 50, "Try Again", "Q" + qNum, "#F59E0B"));
   } 
   else if (currentScreen.startsWith("Correct")) {
     let qNum = parseInt(currentScreen.replace("Correct", ""));
@@ -238,10 +244,10 @@ function updateScreenButtons() {
     let nextButtonId = getNextButtonId(qNum);
 
     if (currentScreen === "Correct10") {
-      activeButtons.push(new Button("button18", width / 2 - btnW / 2, height * 0.46, btnW, btnH, "Finish", "End", "#10B981"));
-      activeButtons.push(new Button("button2", width / 2 - btnW / 2, height * 0.46 + btnH + 15, btnW, btnH, "Back to Q9", "Q9", "#64748B"));
+      activeButtons.push(new Button("button18", width / 2 - btnW / 2, height * 0.44, btnW, 50, "Finish", "End", "#10B981"));
+      activeButtons.push(new Button("button2", width / 2 - btnW / 2, height * 0.44 + 60, btnW, 50, "Back to Q9", "Q9", "#64748B"));
     } else {
-      activeButtons.push(new Button(nextButtonId, width / 2 - btnW / 2, height * 0.5, btnW, btnH, "Next Question", nextScreen, "#10B981"));
+      activeButtons.push(new Button(nextButtonId, width / 2 - btnW / 2, height * 0.5, btnW, 50, "Next Question", nextScreen, "#10B981"));
     }
   }
 }
@@ -260,11 +266,11 @@ function drawHeader() {
 
 function getButtonIdForQuestionOption(q, idx) {
   const mapping = {
-    "Q6": ["button41", "button39"],
-    "Q7": ["button43", "button45", "button46"],
-    "Q8": ["button47", "button48", "button49"],
-    "Q9": ["button34", "button35", "button36"],
-    "Q10": ["button3", "button4", "button5"]
+    "Q6": ["button41", "button39", "button40", "button44"],
+    "Q7": ["button43", "button45", "button46", "button50"],
+    "Q8": ["button47", "button48", "button49", "button52"],
+    "Q9": ["button34", "button35", "button36", "button37"],
+    "Q10": ["button3", "button4", "button5", "button6"]
   };
   return mapping[q] ? mapping[q][idx] : "btn";
 }
@@ -311,10 +317,10 @@ class Button {
     }
     fill(finalColor);
 
-    rect(0, 0, this.w, this.h, 12);
+    rect(0, 0, this.w, this.h, 10);
     fill(255);
     noStroke();
-    textSize(15);
+    textSize(14);
     textStyle(BOLD);
     text(this.label, this.w / 2, this.h / 2);
     pop();
